@@ -1,0 +1,88 @@
+{
+  "errorsBySource": [
+    {
+      "source": "WebAPI",
+      "totalErrors": 245,
+      "uniqueErrors": 12,
+      "affectedUsers": 178
+    },
+    {
+      "source": "AuthService",
+      "totalErrors": 156,
+      "uniqueErrors": 8,
+      "affectedUsers": 143
+    },
+    {
+      "source": "PaymentProcessor",
+      "totalErrors": 89,
+      "uniqueErrors": 5,
+      "affectedUsers": 67
+    },
+    {
+      "source": "BackgroundWorker",
+      "totalErrors": 67,
+      "uniqueErrors": 4,
+      "affectedUsers": 0
+    },
+    {
+      "source": "NotificationService",
+      "totalErrors": 45,
+      "uniqueErrors": 3,
+      "affectedUsers": 41
+    }
+  ],
+  "topErrors": [
+    {
+      "errorId": "ERR_AUTH_001",
+      "errorMessage": "Token validation failed: signature verification failed",
+      "occurrenceCount": 98,
+      "usersAffected": 85,
+      "source": "AuthService",
+      "firstSeen": "2025-01-10T14:23:15Z",
+      "lastSeen": "2025-01-11T14:20:45Z",
+      "durationMinutes": 1437
+    },
+    {
+      "errorId": "ERR_API_404",
+      "errorMessage": "Resource not found: /api/v2/users/profile",
+      "occurrenceCount": 76,
+      "usersAffected": 64,
+      "source": "WebAPI",
+      "firstSeen": "2025-01-10T15:10:22Z",
+      "lastSeen": "2025-01-11T14:15:33Z",
+      "durationMinutes": 1385
+    },
+    {
+      "errorId": "ERR_PAYMENT_002",
+      "errorMessage": "Payment gateway timeout after 30 seconds",
+      "occurrenceCount": 45,
+      "usersAffected": 42,
+      "source": "PaymentProcessor",
+      "firstSeen": "2025-01-10T18:45:12Z",
+      "lastSeen": "2025-01-11T13:55:18Z",
+      "durationMinutes": 1150
+    }
+  ],
+  "errorTimeline": [
+    {
+      "timeGenerated": "2025-01-11T14:15:00Z",
+      "errorCount": 12
+    },
+    {
+      "timeGenerated": "2025-01-11T14:10:00Z",
+      "errorCount": 8
+    },
+    {
+      "timeGenerated": "2025-01-11T14:05:00Z",
+      "errorCount": 15
+    },
+    {
+      "timeGenerated": "2025-01-11T14:00:00Z",
+      "errorCount": 7
+    },
+    {
+      "timeGenerated": "2025-01-11T13:55:00Z",
+      "errorCount": 10
+    }
+  ]
+}

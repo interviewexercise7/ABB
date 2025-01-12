@@ -1,0 +1,41 @@
+Abhisheks-MacBook-Air:K8s Deployment abhishekmisra$ kubectl logs -l app=my-app --all-containers=true
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
+2025/01/07 10:24:14 [notice] 1#1: using the "epoll" event method
+2025/01/07 10:24:14 [notice] 1#1: nginx/1.27.3
+2025/01/07 10:24:14 [notice] 1#1: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2025/01/07 10:24:14 [notice] 1#1: OS: Linux 5.15.0-1075-azure
+2025/01/07 10:24:14 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/01/07 10:24:14 [notice] 1#1: start worker processes
+2025/01/07 10:24:14 [notice] 1#1: start worker process 30
+2025/01/07 10:24:14 [notice] 1#1: start worker process 31
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
+2025/01/07 10:24:13 [notice] 1#1: using the "epoll" event method
+2025/01/07 10:24:13 [notice] 1#1: nginx/1.27.3
+2025/01/07 10:24:13 [notice] 1#1: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2025/01/07 10:24:13 [notice] 1#1: OS: Linux 5.15.0-1075-azure
+2025/01/07 10:24:13 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/01/07 10:24:13 [notice] 1#1: start worker processes
+2025/01/07 10:24:13 [notice] 1#1: start worker process 30
+2025/01/07 10:24:13 [notice] 1#1: start worker process 31
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
+2025/01/07 10:24:15 [notice] 1#1: using the "epoll" event method
+2025/01/07 10:24:15 [notice] 1#1: nginx/1.27.3
+2025/01/07 10:24:15 [notice] 1#1: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2025/01/07 10:24:15 [notice] 1#1: OS: Linux 5.15.0-1075-azure
+2025/01/07 10:24:15 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/01/07 10:24:15 [notice] 1#1: start worker processes
+2025/01/07 10:24:15 [notice] 1#1: start worker process 29
+2025/01/07 10:24:15 [notice] 1#1: start worker process 30
+/docker-entrypoint.sh: Launching /docker-entrypoint.d/30-tune-worker-processes.sh
+/docker-entrypoint.sh: Configuration complete; ready for start up
+2025/01/07 12:44:13 [notice] 1#1: using the "epoll" event method
+2025/01/07 12:44:13 [notice] 1#1: nginx/1.27.3
+2025/01/07 12:44:13 [notice] 1#1: built by gcc 12.2.0 (Debian 12.2.0-14) 
+2025/01/07 12:44:13 [notice] 1#1: OS: Linux 5.15.0-1075-azure
+2025/01/07 12:44:13 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/01/07 12:44:13 [notice] 1#1: start worker processes
+2025/01/07 12:44:13 [notice] 1#1: start worker process 29
+2025/01/07 12:44:13 [notice] 1#1: start worker process 30

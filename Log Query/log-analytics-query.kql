@@ -1,0 +1,74 @@
+// Get all application errors from the last 24 hours
+let timeRange = 24h;
+let severityThreshold = 50;
+
+// Base error query
+let ErrorEvents = AppEvents
+| where TimeGenerated > ago(timeRange)
+| where Level == "Error" or Level == "Critical" or Severity >= severityThreshold
+| project 
+    TimeGenerated,
+    ErrorId = coalesce(ErrorId, OperationId, Id),
+    ErrorMessage = coalesce(ErrorMessage, Message),
+    ErrorSeverity = coalesce(Severity, case(Level == "Critical", 1, Level == "Error", 2, 3)),
+    Source = coalesce(Source, AppName, "_Unknown"),
+    UserName = coalesce(UserName, User, "_Anonymous"),
+    CustomDimensions;
+
+// Error count by source
+let ErrorsBySource = ErrorEvents
+| summarize 
+    ErrorCount = count(),
+    UniqueErrors = dcount(ErrorId),
+    AffectedUsers = dcount(UserName)
+by Source
+| order by ErrorCount desc;
+
+// Top error patterns
+let TopErrors = ErrorEvents
+| summarize 
+    ErrorCount = count(),
+    AffectedUsers = dcount(UserName),
+    LastOccurrence = max(TimeGenerated),
+    FirstOccurrence = min(TimeGenerated)
+by ErrorId, ErrorMessage, Source
+| extend DurationMinutes = datetime_diff('minute', LastOccurrence, FirstOccurrence)
+| order by ErrorCount desc
+| project 
+    ErrorId,
+    ErrorMessage,
+    ErrorCount,
+    AffectedUsers,
+    Source,
+    FirstOccurrence,
+    LastOccurrence,
+    DurationMinutes;
+
+// Error timeline
+let ErrorTimeline = ErrorEvents
+| summarize ErrorCount = count() by bin(TimeGenerated, 5m)
+| order by TimeGenerated desc;
+
+// Combine results
+ErrorsBySource
+| take 10
+| project 
+    ['Source'] = Source,
+    ['Total Errors'] = ErrorCount,
+    ['Unique Errors'] = UniqueErrors,
+    ['Affected Users'] = AffectedUsers;
+
+TopErrors
+| take 10
+| project 
+    ['Error ID'] = ErrorId,
+    ['Error Message'] = ErrorMessage,
+    ['Occurrence Count'] = ErrorCount,
+    ['Users Affected'] = AffectedUsers,
+    ['Source'] = Source,
+    ['First Seen'] = FirstOccurrence,
+    ['Last Seen'] = LastOccurrence,
+    ['Duration (Minutes)'] = DurationMinutes;
+
+ErrorTimeline
+| render timechart

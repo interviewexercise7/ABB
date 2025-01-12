@@ -1,0 +1,93 @@
+# multi-stage-pipeline.yml
+trigger:
+  branches:
+    include:
+    - main
+    - develop
+
+parameters:
+- name: environmentName
+  type: string
+  default: 'dev'
+  values:
+  - dev
+  - test
+  - prod
+
+variables:
+- template: parameters/${{ parameters.environmentName }}.yml
+
+stages:
+- stage: Build
+  jobs:
+  - job: BuildJob
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'build'
+        projects: '**/*.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+    
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'test'
+        projects: '**/*Tests/*.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+    
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'publish'
+        publishWebProjects: true
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+    
+    - task: PublishBuildArtifacts@1
+      inputs:
+        pathToPublish: '$(Build.ArtifactStagingDirectory)'
+        artifactName: 'drop'
+
+- stage: DeployToDev
+  condition: and(succeeded(), eq('${{ parameters.environmentName }}', 'dev'))
+  dependsOn: Build
+  jobs:
+  - deployment: Deploy
+    environment: 'dev'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - template: deployment-steps.yml
+            parameters:
+              resourceGroupName: $(resourceGroupName)
+              appServiceName: $(appServiceName)
+
+- stage: DeployToTest
+  condition: and(succeeded(), eq('${{ parameters.environmentName }}', 'test'))
+  dependsOn: Build
+  jobs:
+  - deployment: Deploy
+    environment: 'test'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - template: deployment-steps.yml
+            parameters:
+              resourceGroupName: $(resourceGroupName)
+              appServiceName: $(appServiceName)
+
+- stage: DeployToProd
+  condition: and(succeeded(), eq('${{ parameters.environmentName }}', 'prod'))
+  dependsOn: Build
+  jobs:
+  - deployment: Deploy
+    environment: 'prod'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - template: deployment-steps.yml
+            parameters:
+              resourceGroupName: $(resourceGroupName)
+              appServiceName: $(appServiceName)

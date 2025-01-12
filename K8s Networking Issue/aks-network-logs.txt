@@ -1,0 +1,95 @@
+# Pod Description Logs
+$ kubectl describe pod frontend-app-7d9f79d45b-2xk8n
+Name:         frontend-app-7d9f79d45b-2xk8n
+Namespace:    production
+Priority:     0
+Node:         aks-nodepool1-12345678-vmss000000/10.240.0.4
+Start Time:   Wed, Jan 08 10:15:32 2025
+Status:       Running
+IP:           10.244.2.15
+IPs:
+  IP:  10.244.2.15
+
+Events:
+  Type     Reason          Age                   From               Message
+  ----     ------          ----                  ----               -------
+  Warning  DNSConfigError  15m (x12 over 1h)     kubelet           DNS resolution failed: timeout
+  Warning  NetworkNotReady 12m (x8 over 45m)     kubelet           Network plugin not ready: cni config uninitialized
+  Warning  FailedConnect   10m (x15 over 30m)    kubelet           Failed to connect to external endpoint: connection timed out
+  Normal   Pulling         8m (x3 over 15m)      kubelet           Pulling image "frontend:v1.2"
+  Normal   Pulled          8m (x3 over 15m)      kubelet           Successfully pulled image "frontend:v1.2"
+  Warning  Failed          5m (x4 over 20m)      kubelet           Error: network plugin not initialized
+
+# CoreDNS Logs
+$ kubectl logs -n kube-system coredns-869cb84759-f5t9q
+.:53
+[INFO] plugin/reload: Running configuration SHA512 = 151915fe4c9961c791f3c0...
+[ERROR] plugin/errors: 2 1754493419.123456 [ERROR] plugin/errors: 2 no such domain for "external-api.company.com. A": no upstream responses
+[ERROR] plugin/errors: 2 1754493420.234567 [ERROR] plugin/errors: 2 read udp: i/o timeout for "payment-gateway.com. A"
+[ERROR] plugin/errors: 2 1754493421.345678 [ERROR] plugin/errors: 2 connection refused for "auth.service.com. A"
+[INFO] plugin/health: Client from 10.244.2.15 requesting health check
+[ERROR] plugin/errors: 2 1754493425.456789 [ERROR] plugin/errors: 2 no upstream resolvers for "api.external.com. A"
+
+# Azure CNI Logs
+$ kubectl logs -n kube-system azure-cni-networkmonitor-5c7f9b69d8-rv6jn
+2025-01-08 10:20:15.123 ERROR   CNI network plugin not initialized
+2025-01-08 10:20:20.234 WARNING Network configuration validation failed
+2025-01-08 10:20:25.345 ERROR   Failed to setup network for pod frontend-app-7d9f79d45b-2xk8n
+2025-01-08 10:20:30.456 ERROR   DNS resolution failed for external endpoints
+2025-01-08 10:20:35.567 WARNING Network policy enforcement inconsistent
+
+# Kube-Proxy Logs
+$ kubectl logs -n kube-system kube-proxy-7d9f7
+I0108 10:25:15.123456   12345 server.go:458] Version: v1.25.5
+E0108 10:25:20.234567   12345 proxier.go:865] Failed to sync endpoint configuration
+E0108 10:25:25.345678   12345 proxier.go:922] Error updating proxy rules: connection refused
+W0108 10:25:30.456789   12345 proxier.go:1024] No endpoints found for service external-service
+E0108 10:25:35.567890   12345 reflector.go:178] Failed to list service endpoints: connection timed out
+
+# Network Policy Controller Logs
+$ kubectl logs -n kube-system azure-npm-bk4q7
+2025-01-08 10:30:15.123 ERROR   Failed to apply network policy rules
+2025-01-08 10:30:20.234 WARNING Policy conflict detected in namespace production
+2025-01-08 10:30:25.345 ERROR   Unable to establish connection to policy endpoint
+2025-01-08 10:30:30.456 ERROR   Network security rule synchronization failed
+2025-01-08 10:30:35.567 WARNING Firewall rules not properly propagated
+
+# Pod Application Logs
+$ kubectl logs frontend-app-7d9f79d45b-2xk8n
+2025-01-08 10:35:15.123 ERROR [main] c.company.frontend.NetworkClient: Failed to connect to external-api.company.com
+java.net.UnknownHostException: external-api.company.com
+    at java.net.InetAddress.getAllByName0(InetAddress.java:1280)
+    at java.net.InetAddress.getAllByName(InetAddress.java:1192)
+2025-01-08 10:35:20.234 ERROR [http-nio-8080-exec-1] c.company.frontend.ServiceClient: Connection timeout
+java.net.SocketTimeoutException: Connect timed out
+    at java.net.DualStackPlainSocketImpl.waitForConnect(Native Method)
+    at java.net.DualStackPlainSocketImpl.socketConnect(DualStackPlainSocketImpl.java:85)
+2025-01-08 10:35:25.345 WARN  [main] c.company.frontend.HealthCheck: External dependency check failed
+2025-01-08 10:35:30.456 ERROR [main] c.company.frontend.DNSResolver: DNS resolution failed for payment-gateway.com
+2025-01-08 10:35:35.567 ERROR [main] c.company.frontend.NetworkMonitor: Network connectivity check failed: UNREACHABLE
+
+# NSG Flow Logs
+{
+    "time": "2025-01-08T10:40:15.123Z",
+    "resourceId": "/SUBSCRIPTIONS/sub-id/RESOURCEGROUPS/rg-name/PROVIDERS/MICROSOFT.NETWORK/NETWORKSECURITYGROUPS/aks-nsg",
+    "operationName": "NetworkSecurityGroupFlowEvents",
+    "properties": {
+        "Version": 2,
+        "flows": [
+            {
+                "rule": "DenyAllOutbound",
+                "flows": [
+                    {
+                        "mac": "000D3AF87B51",
+                        "sourceAddress": "10.244.2.15",
+                        "destinationAddress": "external-api.company.com",
+                        "sourcePort": "54321",
+                        "destinationPort": "443",
+                        "protocol": "TCP",
+                        "trafficStatus": "Denied"
+                    }
+                ]
+            }
+        ]
+    }
+}

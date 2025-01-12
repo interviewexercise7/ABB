@@ -1,0 +1,135 @@
+trigger:
+- main
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+  azureSubscription: 'MyAppServiceConnection'
+  appNameDev: 'myapp-dev'
+  appNameProd: 'myapp-prod'
+  # Add Key Vault variables
+  keyVaultName: 'my-key-vault'
+  keyVaultResourceGroup: 'my-resource-group'
+
+pool:
+  vmImage: 'windows-latest'
+
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    steps:
+    - task: NuGetToolInstaller@1
+
+    - task: NuGetCommand@2
+      inputs:
+        restoreSolution: '$(solution)'
+
+    - task: VSBuild@1
+      inputs:
+        solution: '$(solution)'
+        msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
+
+    - task: VSTest@2
+      inputs:
+        platform: '$(buildPlatform)'
+        configuration: '$(buildConfiguration)'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        ArtifactName: 'drop'
+        publishLocation: 'Container'
+
+- stage: DeployToDev
+  dependsOn: Build
+  condition: succeeded()
+  variables:
+    - group: dev-variables  # Variable group linked to Key Vault
+  jobs:
+  - deployment: Deploy
+    environment: 'development'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          # Fetch secrets from Key Vault
+          - task: AzureKeyVault@2
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              KeyVaultName: '$(keyVaultName)'
+              SecretsFilter: '*'
+              RunAsPreJob: true
+
+          - task: DownloadBuildArtifacts@1
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'drop'
+              downloadPath: '$(System.ArtifactsDirectory)'
+
+          # Log secret usage (masked in logs)
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                Write-Host "Deploying to Dev environment with connection string: $(DatabaseConnectionString)"
+                Write-Host "Using API Key: $(ApiKey)"
+
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              appName: '$(appNameDev)'
+              package: '$(System.ArtifactsDirectory)/**/*.zip'
+              deploymentMethod: 'auto'
+              appSettings: |
+                -ConnectionStrings:DefaultConnection "$(DatabaseConnectionString)"
+                -ApiKey "$(ApiKey)"
+
+- stage: DeployToProduction
+  dependsOn: DeployToDev
+  condition: succeeded()
+  variables:
+    - group: prod-variables  # Variable group linked to Key Vault
+  jobs:
+  - deployment: Deploy
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          # Fetch secrets from Key Vault
+          - task: AzureKeyVault@2
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              KeyVaultName: '$(keyVaultName)'
+              SecretsFilter: '*'
+              RunAsPreJob: true
+
+          - task: DownloadBuildArtifacts@1
+            inputs:
+              buildType: 'current'
+              downloadType: 'single'
+              artifactName: 'drop'
+              downloadPath: '$(System.ArtifactsDirectory)'
+
+          # Log secret usage (masked in logs)
+          - task: PowerShell@2
+            inputs:
+              targetType: 'inline'
+              script: |
+                Write-Host "Deploying to Production environment with connection string: $(DatabaseConnectionString)"
+                Write-Host "Using API Key: $(ApiKey)"
+
+          - task: AzureWebApp@1
+            inputs:
+              azureSubscription: '$(azureSubscription)'
+              appName: '$(appNameProd)'
+              package: '$(System.ArtifactsDirectory)/**/*.zip'
+              deploymentMethod: 'auto'
+              appSettings: |
+                -ConnectionStrings:DefaultConnection "$(DatabaseConnectionString)"
+                -ApiKey "$(ApiKey)"

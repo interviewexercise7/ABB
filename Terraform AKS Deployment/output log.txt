@@ -1,0 +1,384 @@
+Abhisheks-MacBook-Air:Terraform AKS Deployment abhishekmisra$ terraform init
+Initializing the backend...
+Initializing provider plugins...
+- Reusing previous version of hashicorp/azurerm from the dependency lock file
+- Using previously-installed hashicorp/azurerm v3.117.0
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+
+
+------------- plan ---------
+
+Abhisheks-MacBook-Air:Terraform AKS Deployment abhishekmisra$ terraform plan
+
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # azurerm_kubernetes_cluster.aks will be created
+  + resource "azurerm_kubernetes_cluster" "aks" {
+      + api_server_authorized_ip_ranges     = (known after apply)
+      + current_kubernetes_version          = (known after apply)
+      + dns_prefix                          = "gfgaks"
+      + fqdn                                = (known after apply)
+      + http_application_routing_zone_name  = (known after apply)
+      + id                                  = (known after apply)
+      + image_cleaner_enabled               = false
+      + image_cleaner_interval_hours        = 48
+      + kube_admin_config                   = (sensitive value)
+      + kube_admin_config_raw               = (sensitive value)
+      + kube_config                         = (sensitive value)
+      + kube_config_raw                     = (sensitive value)
+      + kubernetes_version                  = (known after apply)
+      + location                            = "eastus"
+      + name                                = "gfg-aks"
+      + node_resource_group                 = (known after apply)
+      + node_resource_group_id              = (known after apply)
+      + oidc_issuer_url                     = (known after apply)
+      + portal_fqdn                         = (known after apply)
+      + private_cluster_enabled             = false
+      + private_cluster_public_fqdn_enabled = false
+      + private_dns_zone_id                 = (known after apply)
+      + private_fqdn                        = (known after apply)
+      + public_network_access_enabled       = true
+      + resource_group_name                 = "DeepsLab"
+      + role_based_access_control_enabled   = true
+      + run_command_enabled                 = true
+      + sku_tier                            = "Free"
+      + support_plan                        = "KubernetesOfficial"
+      + workload_identity_enabled           = false
+
+      + api_server_access_profile (known after apply)
+
+      + auto_scaler_profile (known after apply)
+
+      + default_node_pool {
+          + kubelet_disk_type    = (known after apply)
+          + max_pods             = (known after apply)
+          + name                 = "default"
+          + node_count           = 1
+          + node_labels          = (known after apply)
+          + orchestrator_version = (known after apply)
+          + os_disk_size_gb      = (known after apply)
+          + os_disk_type         = "Managed"
+          + os_sku               = (known after apply)
+          + scale_down_mode      = "Delete"
+          + type                 = "VirtualMachineScaleSets"
+          + ultra_ssd_enabled    = false
+          + vm_size              = "Standard_D2_v2"
+          + workload_runtime     = (known after apply)
+        }
+
+      + identity {
+          + principal_id = (known after apply)
+          + tenant_id    = (known after apply)
+          + type         = "SystemAssigned"
+        }
+
+      + kubelet_identity (known after apply)
+
+      + network_profile (known after apply)
+
+      + windows_profile (known after apply)
+    }
+
+  # azurerm_log_analytics_workspace.log_workspace will be created
+  + resource "azurerm_log_analytics_workspace" "log_workspace" {
+      + allow_resource_only_permissions = true
+      + daily_quota_gb                  = -1
+      + id                              = (known after apply)
+      + internet_ingestion_enabled      = true
+      + internet_query_enabled          = true
+      + local_authentication_disabled   = false
+      + location                        = "eastus"
+      + name                            = "log-workspace"
+      + primary_shared_key              = (sensitive value)
+      + resource_group_name             = "DeepsLab"
+      + retention_in_days               = 30
+      + secondary_shared_key            = (sensitive value)
+      + sku                             = "PerGB2018"
+      + workspace_id                    = (known after apply)
+    }
+
+  # azurerm_monitor_diagnostic_setting.aks_diagnostic will be created
+  + resource "azurerm_monitor_diagnostic_setting" "aks_diagnostic" {
+      + id                             = (known after apply)
+      + log_analytics_destination_type = (known after apply)
+      + log_analytics_workspace_id     = (known after apply)
+      + name                           = "aks-diagnostic"
+      + target_resource_id             = (known after apply)
+
+      + enabled_log (known after apply)
+
+      + log {
+          + category       = "cluster-autoscaler"
+          + enabled        = true
+            # (1 unchanged attribute hidden)
+        }
+      + log {
+          + category       = "kube-apiserver"
+          + enabled        = true
+            # (1 unchanged attribute hidden)
+        }
+      + log {
+          + category       = "kube-audit"
+          + enabled        = true
+            # (1 unchanged attribute hidden)
+        }
+      + log {
+          + category       = "kube-controller-manager"
+          + enabled        = true
+            # (1 unchanged attribute hidden)
+        }
+      + log {
+          + category       = "kube-scheduler"
+          + enabled        = true
+            # (1 unchanged attribute hidden)
+        }
+
+      + metric {
+          + category = "AllMetrics"
+          + enabled  = true
+        }
+    }
+
+  # azurerm_resource_group.rg will be created
+  + resource "azurerm_resource_group" "rg" {
+      + id       = (known after apply)
+      + location = "eastus"
+      + name     = "DeepsLab"
+    }
+
+Plan: 4 to add, 0 to change, 0 to destroy.
+╷
+│ Warning: Argument is deprecated
+│ 
+│   with azurerm_monitor_diagnostic_setting.aks_diagnostic,
+│   on aks-terraform-script.tf line 48, in resource "azurerm_monitor_diagnostic_setting" "aks_diagnostic":
+│   48:   resource "azurerm_monitor_diagnostic_setting" "aks_diagnostic" {
+│ 
+│ `log` has been superseded by `enabled_log` and will be removed in version 4.0 of the AzureRM Provider.
+│ 
+│ (and one more similar warning elsewhere)
+╵
+
+──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+
+Note: You didn't use the -out option to save this plan, so Terraform can't guarantee to take exactly these actions if you run "terraform apply" now.
+Abhisheks-MacBook-Air:Terraform AKS Deployment abhishekmisra$ 
+
+-----------apply-------
+
+Abhisheks-MacBook-Air:Terraform AKS Deployment abhishekmisra$ terraform apply
+
+Terraform used the selected providers to generate the following execution plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # azurerm_kubernetes_cluster.aks will be created
+  + resource "azurerm_kubernetes_cluster" "aks" {
+      + api_server_authorized_ip_ranges     = (known after apply)
+      + current_kubernetes_version          = (known after apply)
+      + dns_prefix                          = "gfgaks"
+      + fqdn                                = (known after apply)
+      + http_application_routing_zone_name  = (known after apply)
+      + id                                  = (known after apply)
+      + image_cleaner_enabled               = false
+      + image_cleaner_interval_hours        = 48
+      + kube_admin_config                   = (sensitive value)
+      + kube_admin_config_raw               = (sensitive value)
+      + kube_config                         = (sensitive value)
+      + kube_config_raw                     = (sensitive value)
+      + kubernetes_version                  = (known after apply)
+      + location                            = "eastus"
+      + name                                = "gfg-aks"
+      + node_resource_group                 = (known after apply)
+      + node_resource_group_id              = (known after apply)
+      + oidc_issuer_url                     = (known after apply)
+      + portal_fqdn                         = (known after apply)
+      + private_cluster_enabled             = false
+      + private_cluster_public_fqdn_enabled = false
+      + private_dns_zone_id                 = (known after apply)
+      + private_fqdn                        = (known after apply)
+      + public_network_access_enabled       = true
+      + resource_group_name                 = "DeepsLab"
+      + role_based_access_control_enabled   = true
+      + run_command_enabled                 = true
+      + sku_tier                            = "Free"
+      + support_plan                        = "KubernetesOfficial"
+      + workload_identity_enabled           = false
+
+      + api_server_access_profile (known after apply)
+
+      + auto_scaler_profile (known after apply)
+
+      + default_node_pool {
+          + kubelet_disk_type    = (known after apply)
+          + max_pods             = (known after apply)
+          + name                 = "default"
+          + node_count           = 1
+          + node_labels          = (known after apply)
+          + orchestrator_version = (known after apply)
+          + os_disk_size_gb      = (known after apply)
+          + os_disk_type         = "Managed"
+          + os_sku               = (known after apply)
+          + scale_down_mode      = "Delete"
+          + type                 = "VirtualMachineScaleSets"
+          + ultra_ssd_enabled    = false
+          + vm_size              = "Standard_D2_v2"
+          + workload_runtime     = (known after apply)
+        }
+
+      + identity {
+          + principal_id = (known after apply)
+          + tenant_id    = (known after apply)
+          + type         = "SystemAssigned"
+        }
+
+      + kubelet_identity (known after apply)
+
+      + network_profile (known after apply)
+
+      + windows_profile (known after apply)
+    }
+
+  # azurerm_log_analytics_workspace.log_workspace will be created
+  + resource "azurerm_log_analytics_workspace" "log_workspace" {
+      + allow_resource_only_permissions = true
+      + daily_quota_gb                  = -1
+      + id                              = (known after apply)
+      + internet_ingestion_enabled      = true
+      + internet_query_enabled          = true
+      + local_authentication_disabled   = false
+      + location                        = "eastus"
+      + name                            = "log-workspace"
+      + primary_shared_key              = (sensitive value)
+      + resource_group_name             = "DeepsLab"
+      + retention_in_days               = 30
+      + secondary_shared_key            = (sensitive value)
+      + sku                             = "PerGB2018"
+      + workspace_id                    = (known after apply)
+    }
+
+  # azurerm_monitor_diagnostic_setting.aks_diagnostic will be created
+  + resource "azurerm_monitor_diagnostic_setting" "aks_diagnostic" {
+      + id                             = (known after apply)
+      + log_analytics_destination_type = (known after apply)
+      + log_analytics_workspace_id     = (known after apply)
+      + name                           = "aks-diagnostic"
+      + target_resource_id             = (known after apply)
+
+      + enabled_log (known after apply)
+
+      + log {
+          + category       = "cluster-autoscaler"
+          + enabled        = true
+            # (1 unchanged attribute hidden)
+        }
+      + log {
+          + category       = "kube-apiserver"
+          + enabled        = true
+            # (1 unchanged attribute hidden)
+        }
+      + log {
+          + category       = "kube-audit"
+          + enabled        = true
+            # (1 unchanged attribute hidden)
+        }
+      + log {
+          + category       = "kube-controller-manager"
+          + enabled        = true
+            # (1 unchanged attribute hidden)
+        }
+      + log {
+          + category       = "kube-scheduler"
+          + enabled        = true
+            # (1 unchanged attribute hidden)
+        }
+
+      + metric {
+          + category = "AllMetrics"
+          + enabled  = true
+        }
+    }
+
+  # azurerm_resource_group.rg will be created
+  + resource "azurerm_resource_group" "rg" {
+      + id       = (known after apply)
+      + location = "eastus"
+      + name     = "DeepsLab"
+    }
+
+Plan: 4 to add, 0 to change, 0 to destroy.
+╷
+│ Warning: Argument is deprecated
+│ 
+│   with azurerm_monitor_diagnostic_setting.aks_diagnostic,
+│   on aks-terraform-script.tf line 48, in resource "azurerm_monitor_diagnostic_setting" "aks_diagnostic":
+│   48:   resource "azurerm_monitor_diagnostic_setting" "aks_diagnostic" {
+│ 
+│ `log` has been superseded by `enabled_log` and will be removed in version 4.0 of the AzureRM Provider.
+│ 
+│ (and one more similar warning elsewhere)
+╵
+
+Do you want to perform these actions?
+  Terraform will perform the actions described above.
+  Only 'yes' will be accepted to approve.
+
+  Enter a value: yes
+
+azurerm_resource_group.rg: Creating...
+azurerm_resource_group.rg: Still creating... [10s elapsed]
+azurerm_resource_group.rg: Creation complete after 14s [id=/subscriptions/e4372e9f-f0e9-49e7-9d05-2667c5de7e7c/resourceGroups/DeepsLab]
+azurerm_log_analytics_workspace.log_workspace: Creating...
+azurerm_kubernetes_cluster.aks: Creating...
+azurerm_log_analytics_workspace.log_workspace: Still creating... [10s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [10s elapsed]
+azurerm_log_analytics_workspace.log_workspace: Still creating... [20s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [20s elapsed]
+azurerm_log_analytics_workspace.log_workspace: Creation complete after 27s [id=/subscriptions/e4372e9f-f0e9-49e7-9d05-2667c5de7e7c/resourceGroups/DeepsLab/providers/Microsoft.OperationalInsights/workspaces/log-workspace]
+azurerm_kubernetes_cluster.aks: Still creating... [30s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [40s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [50s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [1m0s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [1m10s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [1m20s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [1m30s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [1m40s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [1m50s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [2m0s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [2m10s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [2m20s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [2m30s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [2m40s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [2m50s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [3m0s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [3m10s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [3m20s elapsed]
+azurerm_kubernetes_cluster.aks: Still creating... [3m30s elapsed]
+azurerm_kubernetes_cluster.aks: Creation complete after 3m37s [id=/subscriptions/e4372e9f-f0e9-49e7-9d05-2667c5de7e7c/resourceGroups/DeepsLab/providers/Microsoft.ContainerService/managedClusters/gfg-aks]
+azurerm_monitor_diagnostic_setting.aks_diagnostic: Creating...
+azurerm_monitor_diagnostic_setting.aks_diagnostic: Creation complete after 5s [id=/subscriptions/e4372e9f-f0e9-49e7-9d05-2667c5de7e7c/resourceGroups/DeepsLab/providers/Microsoft.ContainerService/managedClusters/gfg-aks|aks-diagnostic]
+╷
+│ Warning: Argument is deprecated
+│ 
+│   with azurerm_monitor_diagnostic_setting.aks_diagnostic,
+│   on aks-terraform-script.tf line 48, in resource "azurerm_monitor_diagnostic_setting" "aks_diagnostic":
+│   48:   resource "azurerm_monitor_diagnostic_setting" "aks_diagnostic" {
+│ 
+│ `log` has been superseded by `enabled_log` and will be removed in version 4.0 of the AzureRM Provider.
+╵
+
+Apply complete! Resources: 4 added, 0 changed, 0 destroyed.

@@ -1,0 +1,76 @@
+trigger:
+  - main
+
+variables:
+  solution: '*/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+  sonarProjectKey: 'MyApp'
+  sonarProjectName: 'MyApp'
+  sonarOrganization: 'Test-org'
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+- task: NuGetToolInstaller@1
+
+- task: NuGetCommand@2
+  inputs:
+    restoreSolution: '$(solution)'
+
+# Begin SonarQube Integration
+- task: SonarQubePrepare@5
+  inputs:
+    SonarQube: 'SonarQube' # Name of the SonarQube service connection in Azure DevOps
+    scannerMode: 'MSBuild'
+    projectKey: '$(sonarProjectKey)'
+    projectName: '$(sonarProjectName)'
+    extraProperties: |
+      sonar.cs.vstest.reportsPaths=$(Agent.TempDirectory)\**\*.trx
+      sonar.cs.opencover.reportsPaths=$(Agent.TempDirectory)\**\coverage.opencover.xml
+      sonar.coverage.exclusions=**/*Tests.cs,**/*Tests/*.cs
+      sonar.exclusions=**/obj/**,**/*.dll
+      sonar.qualitygate.wait=true
+
+- task: VSBuild@1
+  inputs:
+    solution: '$(solution)'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+
+- task: VSTest@2
+  inputs:
+    platform: '$(buildPlatform)'
+    configuration: '$(buildConfiguration)'
+    codeCoverageEnabled: true
+    testRunTitle: 'Unit Tests'
+    publishTestResults: true
+
+# Run SonarQube Analysis
+- task: SonarQubeAnalyze@5
+
+# Publish SonarQube Results
+- task: SonarQubePublish@5
+  inputs:
+    pollingTimeoutSec: '300'
+
+# Quality Gate Check
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: |
+      $qualityGateStatus = Invoke-RestMethod -Uri "$(SonarQube.endpoint)/api/qualitygates/project_status?projectKey=$(sonarProjectKey)" -Headers @{
+        "Authorization" = "Bearer $(SonarQube.token)"
+      }
+      if ($qualityGateStatus.projectStatus.status -eq "ERROR") {
+        Write-Host "##vso[task.complete result=Failed;]Quality Gate failed"
+        exit 1
+      }
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'drop'
+    publishLocation: 'Container'

@@ -1,0 +1,13 @@
+Abhisheks-MacBook-Air:Dockerizing Applications abhishekmisra$ docker push acrexercise.azurecr.io/nginxnew:v1
+The push refers to repository [acrexercise.azurecr.io/nginxnew]
+72194f710588: Pushed 
+2b99b9c5d9e5: Pushed 
+fd674058ff8f: Pushed 
+bd98674871f5: Pushed 
+566e42bcee1c: Pushed 
+c44f27309ea1: Pushed 
+da8cc133ff82: Pushed 
+0847e5053efd: Pushed 
+1e109dd2a0d7: Pushed 
+v1: digest: sha256:9d47c7ec117275068f1188b31a9de47765cf60ab435bf0b3280f48cfeb191b73 size: 856
+Abhisheks-MacBook-Air:Dockerizing Applications abhishekmisra$ 

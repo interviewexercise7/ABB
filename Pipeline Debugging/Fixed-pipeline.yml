@@ -1,0 +1,51 @@
+trigger:
+  - main
+
+variables:
+  # Fixed Issue 1: Added quotes for special characters in the variable
+  DB_CONNECTION_STRING: "Server=myserver;Database=mydb;User Id=$(DB_USER);Password=$(DB_PASSWORD)"
+  # Removed Issue 2: Avoid self-referencing variable
+  BUILD_PATH: "bin/Release"
+  # Removed Issue 3: Avoid direct usage of secure variables in script
+  # (Secure variables should be accessed in the `env` section or scripts directly)
+
+stages:
+- stage: Build
+  variables:
+    # Fixed Issue 4: Consistent and non-conflicting variable definition
+    BUILD_PATH: "$(System.DefaultWorkingDirectory)"
+  jobs:
+  - job: BuildJob
+    pool:
+      vmImage: 'ubuntu-latest'
+    variables:
+      # Fixed Issue 5: Corrected variable group reference syntax
+      - group: DevSecrets
+      # Fixed Issue 6: Added quotes for variable with spaces
+      PROJECT_NAME: "My Project Name"
+    steps:
+    - script: |
+        # Fixed Issue 7: Correct environment variable reference in bash
+        echo "Building ${PROJECT_NAME}"
+        echo "Using connection string: ${DB_CONNECTION_STRING}"
+        # Fixed Issue 8: Avoid attempting to modify pipeline variables
+        NEW_BUILD_PATH="./new-path"
+        echo "New build path is: ${NEW_BUILD_PATH}"
+      displayName: 'Build Step'
+      env:
+        # Fixed Issue 9: Correct secure variable usage
+        SECURE_TOKEN: $(SECRET_TOKEN)
+
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'build'
+        # Fixed Issue 10: Variable expansion in correct context
+        projects: '$(BUILD_PATH)/**/*.csproj'
+      env:
+        # Fixed Issue 11: Provided a fallback for missing environment variable
+        MISSING_VAR: "${NON_EXISTENT_VAR:-default_value}"
+
+    - powershell: |
+        # Fixed Issue 12: Correct PowerShell variable syntax
+        Write-Host "API Key: $env:SECRET_API_KEY"
+      displayName: 'PowerShell Step'

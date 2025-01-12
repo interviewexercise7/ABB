@@ -1,0 +1,29 @@
+# parameters/dev.yml
+variables:
+  buildConfiguration: 'Debug'
+  resourceGroupName: 'rg-myapp-dev'
+  appServiceName: 'app-myservice-dev'
+  appSettings:
+    ASPNETCORE_ENVIRONMENT: 'Development'
+    ApiUrl: 'https://api-dev.myapp.com'
+    LogLevel: 'Debug'
+
+# parameters/test.yml
+variables:
+  buildConfiguration: 'Release'
+  resourceGroupName: 'rg-myapp-test'
+  appServiceName: 'app-myservice-test'
+  appSettings:
+    ASPNETCORE_ENVIRONMENT: 'Staging'
+    ApiUrl: 'https://api-test.myapp.com'
+    LogLevel: 'Information'
+
+# parameters/prod.yml
+variables:
+  buildConfiguration: 'Release'
+  resourceGroupName: 'rg-myapp-prod'
+  appServiceName: 'app-myservice-prod'
+  appSettings:
+    ASPNETCORE_ENVIRONMENT: 'Production'
+    ApiUrl: 'https://api.myapp.com'
+    LogLevel: 'Warning'

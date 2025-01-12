@@ -1,0 +1,50 @@
+trigger:
+  - main
+
+variables:
+  # Issue 1: Incorrect variable syntax - missing quotes for special characters
+  DB_CONNECTION_STRING: Server=myserver;Database=mydb;User Id=$(DB_USER);Password=$(DB_PASSWORD)
+  # Issue 2: Variable trying to reference itself
+  BUILD_PATH: $(BUILD_PATH)/bin/Release
+  # Issue 3: Using secure variable directly in script
+  API_KEY: $(SECRET_API_KEY)
+
+stages:
+- stage: Build
+  variables:
+    # Issue 4: Conflicting variable definition
+    BUILD_PATH: '$(System.DefaultWorkingDirectory)'
+  jobs:
+  - job: BuildJob
+    pool:
+      vmImage: 'ubuntu-latest'
+    variables:
+      # Issue 5: Incorrect variable group reference
+      - group: DevSecrets
+      # Issue 6: Variable with spaces but missing quotes
+      PROJECT_NAME: My Project Name
+    steps:
+    - script: |
+        # Issue 7: Incorrect environment variable reference in bash
+        echo "Building $PROJECT_NAME"
+        echo "Using connection string: $DB_CONNECTION_STRING"
+        # Issue 8: Attempting to modify pipeline variable (not possible)
+        BUILD_PATH="./new-path"
+      displayName: 'Build Step'
+      env:
+        # Issue 9: Incorrect secure variable usage
+        SECURE_TOKEN: $(SECRET_TOKEN)
+
+    - task: DotNetCoreCLI@2
+      inputs:
+        command: 'build'
+        # Issue 10: Variable expansion in wrong context
+        projects: '$(BUILD_PATH)/*.csproj'
+      env:
+        # Issue 11: Missing required environment variable
+        MISSING_VAR: $(NON_EXISTENT_VAR)
+
+    - powershell: |
+        # Issue 12: Windows-style variable syntax in PowerShell
+        Write-Host "API Key: $env:$(API_KEY)"
+      displayName: 'PowerShell Step'
