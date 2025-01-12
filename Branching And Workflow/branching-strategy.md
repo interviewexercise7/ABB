@@ -1,6 +1,6 @@
 # Branching Strategy for Demo Repository
 
-This document outlines the branching strategy for the `demo-branching-prs` repository. It provides guidelines for creating, managing, and merging branches to ensure a streamlined workflow and maintain code quality.
+This document outlines the branching strategy for the repository.
 
 ---
 
